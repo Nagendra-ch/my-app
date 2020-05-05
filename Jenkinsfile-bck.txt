@@ -1,0 +1,23 @@
+node {
+  checkout scm
+  sh 'echo $BRANCH_NAME'
+}
+if (env.BRANCH_NAME == 'master') {
+  stage 'Only on master'
+  println 'This happens only on master'
+} else {
+  stage 'Other branches'
+  println "Current branch ${env.BRANCH_NAME}"
+}
+
+node {
+  stage('SCM') {
+    git 'https://github.com/foo/bar.git'
+  }
+  stage('SonarQube analysis') {
+    def scannerHome = tool 'SonarScanner 4.0';
+    withSonarQubeEnv('My SonarQube Server') { // If you have configured more than one global server connection, you can specify its name
+      sh "${scannerHome}/bin/sonar-scanner"
+    }
+  }
+}
